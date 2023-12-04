@@ -1,4 +1,4 @@
-const solvedDays = 1;
+const solvedDays = 2;
 
 for (let i = 1; i <= solvedDays; i++) {
   import(`./day-${i.toString().padStart(2, '0')}/index`).then(module => module.default())

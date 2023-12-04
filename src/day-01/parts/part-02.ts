@@ -1,6 +1,6 @@
 import data from '../data/part-02.json';
 
-export default function day1Part1(): number {
+export default function (): number {
   let result: number = 0;
   const getEveryDigit: RegExp = new RegExp(/\d/g);
   const translationTable: Record<string, number> = {

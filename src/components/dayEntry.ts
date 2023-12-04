@@ -56,6 +56,7 @@ export const dayEntry = (day: string, intro: string, question: string, part1: Re
         </tbody>
       </table>
     </div>
+    <br />
   `;
 
   return article;
