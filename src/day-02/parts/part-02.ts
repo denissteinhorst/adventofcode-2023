@@ -3,8 +3,6 @@ import data from '../data/part-01.json'; // same dataset as in part-01
 export default function (): number {
   let result: number = 0;
 
-
-
   // regex helper function
   const patternBinder = (color: string) => {
     return new RegExp(`(\\d+)\\s+${color}`, 'i');
