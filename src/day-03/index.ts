@@ -4,14 +4,14 @@ import part2 from './parts/part-02'
 
 const props = {
     day: '01',
-    intro: 'Day 1: Trebuchet?!',
-    question: 'What is the sum of all of the calibration values?',
+    intro: 'Day 3: Gear Ratios',
+    question: 'What is the sum of all of the part numbers in the engine schematic?',
     part1: {
-        challange: 'Numbers only',
+        challange: 'add up all the part numbers (even diagonally!)',
         answer: part1().toString()
     },
     part2: {
-        challange: 'Numbers + Numbers as Strings -mixed-',
+        challange: '...',
         answer: part2().toString()
     },
 }
