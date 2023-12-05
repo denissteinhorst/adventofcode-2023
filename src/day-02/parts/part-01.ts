@@ -10,39 +10,34 @@ export default function (): number {
     "blue": 14
   }
 
+  // regex helper function
   const patternBinder = (color: string) => {
     return new RegExp(`(\\d+)\\s+${color}`, 'i');
   }
 
+  // loop through all games
   for (let i = 0; i < data.input.length; i++) {
     const listEntry = data.input[i];
     const gameId = listEntry.split(':')[0].match(/\d+/g)![0];
     const gameLoop = listEntry.split(':')[1];
     const gameRound = gameLoop.split(';');
 
-    let cubeCounter = {
-      "red": 0,
-      "green": 0,
-      "blue": 0
-    }
+    // loop through every round in a game
+    const possibleRound = gameRound.map((setOfCubes) => {
+      
+      // get amount of cubes per color
+      const amountOfRedCubes = setOfCubes.match(patternBinder('red'));
+      const amountOfGreenCubes = setOfCubes.match(patternBinder('green'));
+      const amountOfBlueCubes = setOfCubes.match(patternBinder('blue'));
 
-    console.log('🔥 ----- NEW GAME -----:');
-    
-    const possibleRound = gameRound.map((setOfCubes, index) => {
-
-      const matchRed = setOfCubes.match(patternBinder('red'));
-      const matchGreen = setOfCubes.match(patternBinder('green'));
-      const matchBlue = setOfCubes.match(patternBinder('blue'));
-
-      cubeCounter = {
-        red: cubeCounter.red += matchRed ? parseInt(matchRed[1]) : 0,
-        green: cubeCounter.green += matchGreen ? parseInt(matchGreen[1]) : 0,
-        blue: cubeCounter.blue += matchBlue ? parseInt(matchBlue[1]) : 0
+      // store amount of cubes per color
+      let cubeCounter = {
+        red: amountOfRedCubes ? parseInt(amountOfRedCubes[1]) : 0,
+        green: amountOfGreenCubes ? parseInt(amountOfGreenCubes[1]) : 0,
+        blue: amountOfBlueCubes ? parseInt(amountOfBlueCubes[1]) : 0
       }
 
-      console.log('🔥 setOfCubes:', setOfCubes);
-      console.log('🔥 cubeCounter:', cubeCounter);
-
+      // check if amount of cubes per color is within the limits
       if(cubeCounter.red > cubeLimits.red) return false;
       if(cubeCounter.green > cubeLimits.green) return false;
       if(cubeCounter.blue > cubeLimits.blue) return false;
@@ -50,6 +45,7 @@ export default function (): number {
       return true
     });
     
+    // check if given game is possible and add gameId to result if so
     possibleRound.every((round) => round === true) 
       ? result = result + parseInt(gameId)
       : null
