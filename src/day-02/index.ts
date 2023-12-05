@@ -5,13 +5,13 @@ import part2 from './parts/part-02'
 const props = {
     day: '01',
     intro: 'Day 2: Cube Conundrum',
-    question: 'What is the sum of the IDs of those games?',
+    question: 'What is the sum of the IDs and Power of those games?',
     part1: {
         challange: '12 red cubes, 13 green cubes and 14 blue cubes',
         answer: part1().toString()
     },
     part2: {
-        challange: '...',
+        challange: 'Power of minimum amount from playable cubes',
         answer: part2().toString()
     },
 }
