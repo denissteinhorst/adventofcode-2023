@@ -4,7 +4,7 @@ export default function (): number {
   let time: number = Date.now();
   let result: number = 0;
   let lineWidth: number = 140;
-  let linesToIterate: number = 140; // max 140
+  let linesToIterate: number = 5; // max 140
 
   // valid symbols too look out for
   const matchingSymbols: { possibilitys: string[], coordinates: number[][] } = {
@@ -46,7 +46,7 @@ export default function (): number {
   // loop through the coordinates of matching symbols
   matchingSymbols.coordinates.forEach((coordinate: number[]) => {
     const [row, column] = coordinate;
-    // const foundSymbol = rows[row][column];
+    const foundSymbol = rows[row][column];
 
     // get the current scope of the symbol
     const currentScope = () => {
@@ -80,40 +80,16 @@ export default function (): number {
 
         let foundNumber = false;
   
-        selection.forEach((cell: string[], index: number) => {
-
-          if (index === 0) {
-            // assuming we're at the first match of of the current rows[row] (somewhere on the left)
-            // i know that we're moving LEFT if adjecent numbers are found
-            // so i check if the current cell's content is already at the 0th position
-            // of the current row prevent moving out of bounds
-            // just turn the current row and cell around and check if the current cell is at the 0th position
-        
-            if(rows[row].toString().indexOf(cell.toString()) !== -1) {
-
-              // check if the first character of the current cell is a number
-              if (!isNaN(parseInt(cell[0]))) {
-                scopeSize.left++;
-                foundNumber = true;
-              }
-            }
+        selection.forEach((cell: string[]) => {
+          // check if the first character of the current cell is a number
+          if (!isNaN(parseInt(cell[0]))) {
+            scopeSize.left++;
+            foundNumber = true;
           }
-
-          if (index === 3) {
-            // assuming we're at the last match of of the current rows[row] (somewhere on the right)
-            // i do the same as above but then for the right side
-
-            const reversedRow = rows[row].toString().split('').reverse().join('');
-            const reversedCell = cell.toString().split('').reverse().join('');
-
-            if(reversedRow[row].toString().indexOf(reversedCell.toString()) !== -1) {
-
-              // check if the last character of the current cell is a number
-              if (!isNaN(parseInt(cell[cell.length - 1]))) {
-                scopeSize.right++;
-                foundNumber = true;
-              }
-            }
+          // check if the last character of the current cell is a number
+          if (!isNaN(parseInt(cell[cell.length - 1]))) {
+            scopeSize.right++;
+            foundNumber = true;
           }
         });
 
@@ -129,6 +105,11 @@ export default function (): number {
     if (currentScope().length > 0) {
       const joinedScope = currentScope().join('').replace(/\s/g, '');
       const extractAdjecentNumbers = joinedScope.match(/\d+/g);
+
+      console.log('🔥 foundSymbol:', foundSymbol);
+      
+      console.log('🔥 extractAdjecentNumbers:', extractAdjecentNumbers);
+      
 
       extractAdjecentNumbers?.forEach((number: string) => {
         result += parseInt(number);
