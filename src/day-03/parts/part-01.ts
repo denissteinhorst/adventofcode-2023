@@ -4,7 +4,7 @@ export default function (): number {
   let time: number = Date.now();
   let result: number = 0;
   let lineWidth: number = 140;
-  let linesToIterate: number = 5; // max 140
+  let linesToIterate: number = 140; // max 140
 
   // valid symbols too look out for
   const matchingSymbols: { possibilitys: string[], coordinates: number[][] } = {
@@ -17,6 +17,8 @@ export default function (): number {
 
   // limit the amount of lines to iterate over
   rows = rows.slice(0, linesToIterate);
+  console.log('🔥 rows:', rows);
+  
 
   // coordinates of matching symbols
   rows.map((singleRow: string[], index: number) => {
@@ -45,76 +47,89 @@ export default function (): number {
 
   // loop through the coordinates of matching symbols
   matchingSymbols.coordinates.forEach((coordinate: number[]) => {
-    const [row, column] = coordinate;
-    const foundSymbol = rows[row][column];
+    const [hitRow, hitColumn] = coordinate;
+    const foundSymbol = rows[hitRow][hitColumn];
 
-    // get the current scope of the symbol
-    const currentScope = () => {
-      let currentSelection: string[][] = [];
+    // scope of the selection
+    const scopes = {
+      0: { left: 2, right: 2, selection: '' },
+      1: { left: 2, right: 2, selection: '' },
+      2: { left: 2, right: 2, selection: '' },
+    };
 
-      // default scopeSize is 1 in each direction (resulting in 3x3 grid around the current symbol)
-      let scopeSize = {
-        left: 1,
-        top: 1,
-        right: 1,
-        bottom: 1
+    // console.log(`found: [ ${foundSymbol} ] in Row ${hitRow}/${rows.length} at Column ${hitColumn}/${rows[hitRow].length}`);
+    
+    const makeSelection = (row: number, column: number, direction: string, selectionWidth: number ) => {
+      const selection: string[] = [];
+  
+      // create the selection
+      for (let i = 0; i < selectionWidth; i++) {
+          const columnIndex = direction === 'left' ? column - i : column + i;
+  
+          
+          // Check if columnIndex is within bounds
+            if (columnIndex >= 0 && columnIndex < rows[row].length) {
+                selection.push(rows[row][columnIndex]);
+            } else {
+                // Handle out-of-bounds case (you can choose to push a default value or handle it in some other way)
+                selection.push(''); // Default value when out of bounds
+            }
       }
   
-      // iterate as long as scopeSize keeps increasing
-      while (true) {
-
-        // selection of the current symbol based on the scopeSize
-        const selection: string[][] = rows.slice(row - scopeSize.top, row + scopeSize.bottom + 1).map((singleRow: string[]) => {
-          return singleRow.slice(column - scopeSize.left, column + scopeSize.right + 1);
-        });
-
-        // when reached the end of current input, it's possible that the selection is missing a row so we add it
-        while(selection.length < 3) {
-          const charLength = selection[0].length;
-          let contentFiller = '';
-          for (let i = 0; i < charLength; i++) {
-            contentFiller += '.';
-          }
-          selection.push((`${contentFiller}` as unknown) as string[]);
-        }
-
-        let foundNumber = false;
+      // its left to right, so reverse the selection
+      if (direction === 'left') {
+          selection.reverse();
+      }
   
-        selection.forEach((cell: string[]) => {
-          // check if the first character of the current cell is a number
-          if (!isNaN(parseInt(cell[0]))) {
-            scopeSize.left++;
-            foundNumber = true;
-          }
-          // check if the last character of the current cell is a number
-          if (!isNaN(parseInt(cell[cell.length - 1]))) {
-            scopeSize.right++;
-            foundNumber = true;
-          }
-        });
+      return selection;
+  };
 
-        currentSelection = selection;
+    // iterate over the rows (top, middle, bottom) and expand in each direction
+    const checkRow = (row: number, index: number) => {
+      if(rows[row]) {
+        let selectionBasedOnScopeLeft = makeSelection(row, hitColumn, 'left', scopes[index].left);
+        let selectionBasedOnScopeRight = makeSelection(row, hitColumn, 'right', scopes[index].right);
+        selectionBasedOnScopeLeft.pop(); // remove matching symbol
 
-        // Break the loop if no additional numbers were found in the current iteration
-        if (!foundNumber) {
-          return currentSelection;
+        // while the first character of the selection is a number, incerase the scope[0].left by 1 
+        while (selectionBasedOnScopeLeft[0].match(/\d/)) {
+          scopes[index].left++;
+          selectionBasedOnScopeLeft = makeSelection(row, hitColumn, 'left', scopes[index].left);
+          selectionBasedOnScopeLeft.pop(); // remove matching symbol
         }
+
+        // while the last character of the selection is a number, incerase the scope[0].right by 1
+        while (selectionBasedOnScopeRight[selectionBasedOnScopeRight.length - 1].match(/\d/)) {
+          scopes[index].right++;
+          selectionBasedOnScopeRight = makeSelection(row, hitColumn, 'right', scopes[index].right);
+          selectionBasedOnScopeRight.pop(); // remove matching symbol
+        }
+
+        const selection = [...selectionBasedOnScopeLeft, ...selectionBasedOnScopeRight];
+        return selection.join('');
       }
     }
 
-    if (currentScope().length > 0) {
-      const joinedScope = currentScope().join('').replace(/\s/g, '');
-      const extractAdjecentNumbers = joinedScope.match(/\d+/g);
+    scopes[0].selection = checkRow((hitRow - 1), 0);
+    scopes[1].selection = checkRow(hitRow, 1);
+    scopes[2].selection = checkRow((hitRow + 1), 2);
 
-      console.log('🔥 foundSymbol:', foundSymbol);
-      
-      console.log('🔥 extractAdjecentNumbers:', extractAdjecentNumbers);
-      
+    // console.log('🔥 scopes:', scopes);   
+  
+    let joinedScope = '';
 
-      extractAdjecentNumbers?.forEach((number: string) => {
-        result += parseInt(number);
-      });
-    }
+    // join all scopes
+    Object.values(scopes).forEach((scope: any) => {
+      joinedScope += scope.selection ? scope.selection : '';
+    });
+
+    // extract all numbers from the joined scope
+    const extractAdjecentNumbers = joinedScope.match(/\d+/g);
+
+    // add all numbers together
+    extractAdjecentNumbers?.forEach((number: string) => {
+      result += parseInt(number);
+    });
   });
 
   const timeTaken = new Date(Date.now() - time).toISOString().substr(11, 12);
