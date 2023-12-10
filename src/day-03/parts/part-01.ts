@@ -17,7 +17,7 @@ export default function (): number {
 
   // limit the amount of lines to iterate over
   rows = rows.slice(0, linesToIterate);
-  console.log('🔥 rows:', rows);
+  // console.log('🔥 rows:', rows);
   
 
   // coordinates of matching symbols
